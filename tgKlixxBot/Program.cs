@@ -653,9 +653,12 @@ namespace tgKlixxBot
                                     Console.WriteLine(update.message.text);
                                     string undercover_korrekt = "";
                                     string[] undercover_gesetzt = incognitokarten.Split(' ');
-                                    foreach (string spieler in undercover_gesetzt) {
-                                        undercover_korrekt += spieler + " ";
-                                        scoreboard[spieler] += 1;
+                                    if (undercover_gesetzt.Length > 0)
+                                    {
+                                        foreach (string spieler in undercover_gesetzt) {
+                                            undercover_korrekt += spieler + " ";
+                                            scoreboard[spieler] += 1;
+                                        }
                                     }
                                     sendMessage(update.message.chat.id, "Bonuspunkte gibt's für " + undercover_korrekt + "!", kuchisch: kuchisch);
                                 }

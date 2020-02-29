@@ -1,4 +1,4 @@
-tgKlixxBot is a C# program which uses the Telegram API to enable playing live with "Verflixxte Klixx" on Rocket Beans TV.
+tgKlixxBot is a C# program which uses the Telegram API to enable playing live with "Verflixxte Klixx" on Rocket Beans TV. Feel free to drop in when it's Thursday yet again: @KlixxChat.
 
 For it to run, you'll need:
  - Newtonsoft.Json 12.0.2
