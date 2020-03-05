@@ -32,7 +32,11 @@ namespace tgKlixxBot
                                      "Leute, Leute, Leute, wer's jetzt noch nicht verstanden hat, gähn gähn Zwinkersmiley, Verflixxte Klixx ist die Show der Stunde.",
                                      "Laaarstag, es ist Laaarstag! Laaarstag, Ich-hab-Spaß-Tag!",
                                      "Wir brauchen ein neues Internet, alle Videos müssen gelöscht werden.",
-                                     "Yeah, I can't help you, dude."};
+                                     "Yeah, I can't help you, dude.",
+                                     "Manchmal muss man mit dem Strudel gehen.",
+                                     "Niemand: " +
+                                     "Wirklich niemand: " +
+                                     "LKW-Fahrer: *huscht über den Berg*"};
 
         static string[] WILLKOMMEN_ZIFF = {"PFIFFIGE ZIFFERN! PFIFFIGE ZIFFERN! PFIFF-I-GE... ZIFFERN!",
                                            "BWL, 1. Stunde: Plastik ist spottbillig und dumme Leute zahlen viel Geld. So, geht nach Hause.",
@@ -60,11 +64,15 @@ namespace tgKlixxBot
             bool mMobizen = false;
             int multiplikator = 1;
             Dictionary<string, double> guesses = new Dictionary<string, double>();
+            double florentin = double.NaN;
+            double lars = double.NaN;
             string fischkarte_gesetzt = "";
             string fischkarten = "";
             string incognitokarte_gesetzt = "";
             string incognitokarten = "";
             Dictionary<string, long> scoreboard = new Dictionary<string, long>();
+            Dictionary<string, long> florentin_punkte = new Dictionary<string, long>();
+            Dictionary<string, long> lars_punkte = new Dictionary<string, long>();
             long offset = 0;
             Dictionary<string, int> Geierkandidaten = new Dictionary<string, int>();
             int video_nr = 1;
@@ -81,7 +89,6 @@ namespace tgKlixxBot
             bool ziffern = false;
             string spielleiter = "";
             bool schon_gemeckert = false;
-            bool command_detected = false;
             bool playing = true;
 
             Console.WriteLine("Es ist schooooon wieder Donnerstag!");
@@ -102,7 +109,7 @@ namespace tgKlixxBot
                 foreach (TgUpdate update in updates)
                 {
                     try {
-                        command_detected = false;
+                        bool command_detected = false;
                         if (update.message == null) continue;
                         if (update.message.text == null) continue;
                         offset = long.Parse(update.update_id) + 1;
@@ -139,9 +146,9 @@ namespace tgKlixxBot
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes"))
                         {
-                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.2 gepatcht!\n" +
-                                " - Kuchisch hinzugefügt.\n" +
-                                " - Fischkartenfluch entfernt.");
+                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.3 gepatcht!\n" +
+                                " - Larskönig und Florentinkönig hinzugefügt.\n" +
+                                " - Undercoverkartenfluch entfernt.");
                             command_detected = true;
                         }
 
@@ -149,6 +156,7 @@ namespace tgKlixxBot
                             sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3 gepatcht!\n" +
                                 " - Der Kronencounter ist daaa!\n" +
                                 " - Undercoverkarte implementiert.\n" +
+                                " - Kuchisch hinzugefügt.\n" +
                                 " - Fischkartenfluch entfernt.");
                             command_detected = true;
                         }
@@ -324,10 +332,10 @@ namespace tgKlixxBot
 
                             if (update.message.text.ToLower().Contains("/fix"))
                             {
-                                string user = update.message.text.Substring(update.message.text.IndexOf(' ') + 1);
-                                Console.WriteLine("User: " + user);
-                                long wert = long.Parse(user.Substring(user.IndexOf(' ') + 1));
-                                user = user.Substring(0, user.IndexOf(' '));
+                                string wertstring = update.message.text.Substring(update.message.text.IndexOf(' ') + 1);
+                                string user = wertstring.Substring(wertstring.IndexOf(' ') + 1);
+                                wertstring = wertstring.Substring(0, wertstring.IndexOf(' '));
+                                long wert = long.Parse(wertstring);
                                 Console.WriteLine("User: " + user);
                                 scoreboard[user] = scoreboard[user] + wert;
                                 command_detected = true;
@@ -380,6 +388,22 @@ namespace tgKlixxBot
                                 {
                                     sendMessage(update.message.chat.id, "Nur der Spielleiter kann die Geierpoll starten.", update.message.message_id);
                                 }
+                            }
+
+                            if (update.message.text.ToLower().StartsWith("/florentin"))
+                            {
+                                command_detected = true;
+                                string tipp = update.message.text.Substring(update.message.text.IndexOf(' '));
+                                tipp = tipp.Replace('.', ',');
+                                florentin = double.Parse(tipp);
+                            }
+
+                            if (update.message.text.ToLower().StartsWith("/lars"))
+                            {
+                                command_detected = true;
+                                string tipp = update.message.text.Substring(update.message.text.IndexOf(' '));
+                                tipp = tipp.Replace('.', ',');
+                                lars = double.Parse(tipp);
                             }
 
                             if (update.message.text.ToLower().StartsWith("/klixx") | update.message.text.ToLower().StartsWith("/preis") | update.message.text.ToLower().StartsWith("/ziff"))
@@ -476,8 +500,8 @@ namespace tgKlixxBot
                                 else
                                 {
                                     sendSticker(update.message.chat.id, UNDERCOVER, update.message.message_id);
-                                    incognitokarten += " " + update.message.from.username + " ";
-                                    incognitokarte_gesetzt += " " + update.message.from.username + " ";
+                                    incognitokarten += update.message.from.username + ";";
+                                    incognitokarte_gesetzt += update.message.from.username + ";";
                                     Console.WriteLine("Incognitokarte bereits gesetzt: " + incognitokarte_gesetzt);
                                     Console.WriteLine("Incognitokarte diese Runde: " + incognitokarten);
                                 }
@@ -622,6 +646,58 @@ namespace tgKlixxBot
                                 }
                                 else winnerstring = gewinner[0] + " gewinnt!";
 
+                                highscore = -1;
+                                foreach (KeyValuePair<string, long> entry in lars_punkte)
+                                {
+                                    if (entry.Value > highscore) highscore = entry.Value;
+                                }
+                                List<string> larskoenig = new List<string>();
+                                foreach (KeyValuePair<string, long> entry in lars_punkte)
+                                    if (entry.Value == highscore) larskoenig.Add(entry.Key);
+
+                                highscore = -1;
+                                foreach (KeyValuePair<string, long> entry in florentin_punkte)
+                                {
+                                    if (entry.Value > highscore) highscore = entry.Value;
+                                }
+                                List<string> florentinkoenig = new List<string>();
+                                foreach (KeyValuePair<string, long> entry in florentin_punkte)
+                                    if (entry.Value == highscore) florentinkoenig.Add(entry.Key);
+
+                                string florentinkoenigstring = "";
+                                if (florentinkoenig.Count > 1)
+                                {
+                                    florentinkoenigstring += "Die Florentinkönige sind: ";
+                                    for (int i = 0; i < florentinkoenig.Count; i++)
+                                    {
+                                        florentinkoenigstring += florentinkoenig[i];
+                                        if (i == florentinkoenig.Count - 2) florentinkoenigstring += " und ";
+                                        else
+                                        {
+                                            if (i == gewinner.Count - 1) florentinkoenigstring += ".";
+                                            else florentinkoenigstring += ", ";
+                                        }
+                                    }
+                                }
+                                else florentinkoenigstring = florentinkoenig[0] + "ist Florentinkönig!";
+
+                                string larskoenigstring = "";
+                                if (larskoenig.Count > 1)
+                                {
+                                    larskoenigstring += "Die Larskönige sind: ";
+                                    for (int i = 0; i < larskoenig.Count; i++)
+                                    {
+                                        larskoenigstring += larskoenig[i];
+                                        if (i == larskoenig.Count - 2) larskoenigstring += " und ";
+                                        else
+                                        {
+                                            if (i == gewinner.Count - 1) larskoenigstring += ".";
+                                            else larskoenigstring += ", ";
+                                        }
+                                    }
+                                }
+                                else larskoenigstring = larskoenig[0] + "ist Larskönig!";
+
                                 foreach (string winnername in gewinner) {
                                     makeWinBorder(winnername);
                                     if (kronenliste.ContainsKey(winnername))
@@ -643,8 +719,6 @@ namespace tgKlixxBot
 
                             if (update.message.text.ToLower().StartsWith("/wahr"))
                             {
-                                bool is_incognitovideo = false;
-
                                 if (update.message.text.EndsWith("!"))
                                 {
                                     sendMessage(update.message.chat.id, "Krrrah! Das hier war das Undercovervideo!", kuchisch: kuchisch);
@@ -652,12 +726,15 @@ namespace tgKlixxBot
                                     update.message.text = update.message.text.Substring(0, update.message.text.Length - 1);
                                     Console.WriteLine(update.message.text);
                                     string undercover_korrekt = "";
-                                    string[] undercover_gesetzt = incognitokarten.Split(' ');
+                                    string[] undercover_gesetzt = incognitokarten.Split(';');
                                     if (undercover_gesetzt.Length > 0)
                                     {
                                         foreach (string spieler in undercover_gesetzt) {
-                                            undercover_korrekt += spieler + " ";
-                                            scoreboard[spieler] += 1;
+                                            if (spieler != "")
+                                            {
+                                                undercover_korrekt += spieler + " ";
+                                                scoreboard[spieler] += 1;
+                                            }
                                         }
                                     }
                                     sendMessage(update.message.chat.id, "Bonuspunkte gibt's für " + undercover_korrekt + "!", kuchisch: kuchisch);
@@ -683,21 +760,56 @@ namespace tgKlixxBot
                                 }
 
                                 double distanz = -1;
+                                double lars_distanz = -1;
+                                double florentin_distanz = -1;
+
                                 Dictionary<string, double> distanzen = new Dictionary<string, double>();
+                                Dictionary<string, double> lars_distanzen = new Dictionary<string, double>();
+                                Dictionary<string, double> florentin_distanzen = new Dictionary<string, double>();
+
                                 foreach (KeyValuePair<string, double> tipp in guesses)
                                 {
                                     double distanz_neu = wahrheit - tipp.Value;
+                                    double distanz_neu_lars = lars - tipp.Value;
+                                    double distanz_neu_florentin = florentin - tipp.Value;
+
                                     if (distanz_neu < 0) distanz_neu *= -1;
+                                    if (distanz_neu_lars < 0) distanz_neu_lars *= -1;
+                                    if (distanz_neu_florentin < 0) distanz_neu_florentin *= -1;
+
                                     distanzen[tipp.Key] = distanz_neu;
+                                    lars_distanzen[tipp.Key] = distanz_neu_lars;
+                                    florentin_distanzen[tipp.Key] = distanz_neu_florentin;
+
                                     if (distanz == -1 | distanz_neu < distanz)
                                     {
                                         distanz = distanz_neu;
                                     }
                                     Console.WriteLine("Distanz: " + distanz_neu.ToString());
+                                    if (lars_distanz == -1 | distanz_neu_lars < lars_distanz)
+                                    {
+                                        lars_distanz = distanz_neu_lars;
+                                    }
+                                    if (florentin_distanz == -1 | distanz_neu_florentin < florentin_distanz)
+                                    {
+                                        florentin_distanz = distanz_neu_florentin;
+                                    }
                                 }
                                 // Berechne Punkte für jeden Teilnehmer
                                 foreach (KeyValuePair<string, double> tipp in distanzen)
                                 {
+                                    if (tipp.Value == lars_distanz)
+                                        if (!lars_punkte.ContainsKey(tipp.Key))
+                                            lars_punkte[tipp.Key] = 1;
+                                        else
+                                            lars_punkte[tipp.Key] += 1;
+
+                                    if (tipp.Value == florentin_distanz)
+                                        if (!florentin_punkte.ContainsKey(tipp.Key))
+                                            florentin_punkte[tipp.Key] = 1;
+                                        else
+                                            florentin_punkte[tipp.Key] += 1;
+
                                     if (tipp.Value == distanz)
                                     {
                                         long punkte = 1;
@@ -708,11 +820,6 @@ namespace tgKlixxBot
                                         if (mMobizen) punkte *= 2;
                                         try
                                         {
-                                            if (incognitokarten.Contains(tipp.Key) && is_incognitovideo)
-                                            {
-                                                punkte += 1;
-                                                Console.WriteLine(tipp.Key + " erhält Incognitokartenbonus.");
-                                            }
                                             if (fischkarten.Contains(tipp.Key))
                                             {
                                                 punkte *= 2;
@@ -773,6 +880,9 @@ namespace tgKlixxBot
 
                                 players_getippt = new List<string>();
                                 schon_gemeckert = false;
+
+                                lars = double.NaN;
+                                florentin = double.NaN;
 
                                 video_nr++;
                                 if (ziffern == false)
