@@ -25,7 +25,9 @@ namespace tgKlixxBot
         const string GUNAKLIBO = "CAADAgADzgAD0OMSJUKuUKIAAV99qRYE";
         const string UNDERCOVER = "CAACAgIAAxkBAAIEIV5Fiuu_PfzSbsZLQqv17R4y86kBAAJFAANZELYID6d_L2SFIJQYBA";
 
-        static string[] WILLKOMMEN = {"Es ist schooooooon wieder Donnerstag!",
+        static string wochentag = "";
+
+        static string[] WILLKOMMEN = {"Es ist schooooooon wieder {DAYOFWEEK}!",
                                      "Herzlich Willkommen zu einer neuen Folge Verflixxte Klixx!",
                                      "Wenn die Klixx wieder rollen und die Fischkarte zuckt, ja dann ist es wieder soweit, dann wird Verflixxte Klixx geguckt!",
                                      "Verflixxte Klixx! Verflixxte Klixx! Ver-flixx-te... Klixx!",
@@ -34,8 +36,8 @@ namespace tgKlixxBot
                                      "Wir brauchen ein neues Internet, alle Videos müssen gelöscht werden.",
                                      "Yeah, I can't help you, dude.",
                                      "Manchmal muss man mit dem Strudel gehen.",
-                                     "Niemand: " +
-                                     "Wirklich niemand: " +
+                                     "Niemand: \n" +
+                                     "Wirklich niemand: \n" +
                                      "LKW-Fahrer: *huscht über den Berg*"};
 
         static string[] WILLKOMMEN_ZIFF = {"PFIFFIGE ZIFFERN! PFIFFIGE ZIFFERN! PFIFF-I-GE... ZIFFERN!",
@@ -44,13 +46,14 @@ namespace tgKlixxBot
                                            "Freundschaft ist unbezahlbar. Was man kaufen kann, ist billiger Plastikschrott aus China und darum geht es in dieser Sendung.",
                                            "Die schwarze farbe ist jetzt heißer Verkauf."};
 
-        static string[] QUATSCHKOMMANDO = { "Dieses Feature ist in der Testversion nicht enthalten. Möchten Sie 590 Plu ausgeben und auf die Premiumversion upgraden?", 
-                                            "Quatschkommando.",
-                                            "Hä?"};
+        static string[] QUATSCHKOMMANDO = {"Dieses Feature ist in der Testversion nicht enthalten. Möchten Sie 590 Plu ausgeben und auf die Premiumversion upgraden?", 
+                                           "Quatschkommando.",
+                                           "Hä?"};
 
         static string[] TU_ES = {"AAAAAAH Komm schon MATHEEEEE",
                                  "TU ES!"};
-        static string[] FISCHKARTENBILDER = new string[3] { FISCHKARTE1, FISCHKARTE2, FISCHKARTE3 };
+
+        static string[] FISCHKARTENBILDER = new string[3]{FISCHKARTE1, FISCHKARTE2, FISCHKARTE3};
 
         static string botcode = "";
 
@@ -85,6 +88,33 @@ namespace tgKlixxBot
 
             // Importing bot api identifier
             botcode = System.IO.File.ReadAllText("botcode.txt");
+
+            // Getting day of week
+            switch (System.DateTime.Today.DayOfWeek)
+            {
+                case DayOfWeek.Monday: 
+                    wochentag = "Montag";
+                    break;
+                case DayOfWeek.Tuesday:
+                    wochentag = "Dienstag";
+                    break;
+                case DayOfWeek.Wednesday:
+                    wochentag = "Mittwoch";
+                    break;
+                case DayOfWeek.Thursday:
+                    wochentag = "Donnerstag";
+                    break;
+                case DayOfWeek.Friday:
+                    wochentag = "Freitag";
+                    break;
+                case DayOfWeek.Saturday:
+                    wochentag = "Samstag";
+                    break;
+                case DayOfWeek.Sunday:
+                    wochentag = "Sonntag";
+                    break;
+            }
+            WILLKOMMEN[0] = WILLKOMMEN[0].Replace("{DAYOFWEEK}", wochentag);
 
             bool ziffern = false;
             string spielleiter = "";
@@ -148,6 +178,7 @@ namespace tgKlixxBot
                         {
                             sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.3 gepatcht!\n" +
                                 " - Larskönig und Florentinkönig hinzugefügt.\n" +
+                                " - Updates bei Begrüßungssprüchen.\n" +
                                 " - Undercoverkartenfluch entfernt.");
                             command_detected = true;
                         }
@@ -289,6 +320,7 @@ namespace tgKlixxBot
                                 "/geierpoll: Abstimmung für Geierkönig starten\n" +
                                 "/klixx: Klixx des aktuellen Videos schätzen\n" +
                                 "/fischkarte: Die Fischkarte ziehen!\n" +
+                                "/undercover: Die Undercoverkarte ziehen!\n" +
                                 "/scores: Zwischenstand anzeigen";
 
                             sendMessage(update.message.chat.id, helptext, update.message.message_id, kuchisch: kuchisch);
@@ -314,7 +346,8 @@ namespace tgKlixxBot
                                 "/multi / /skip: Video mit Mal-Zwei-Multiplikator markieren\n" +
                                 "/timecode: Video mit Timecode markieren\n" +
                                 "/mobizen: Video mit Mobizen-Watermark markieren\n" +
-                                "/wahr: Wahre Klixxzahl angeben und nächstes Video starten";
+                                "/wahr: Wahre Klixxzahl angeben und nächstes Video starten; '!' markiert das Undercovervideo.\n" +
+                                "/fix [x] [Username (so wie er auch in der Highscoreliste steht)]";
 
                             sendMessage(update.message.chat.id, helptext, update.message.message_id);
                             command_detected = true;
@@ -646,58 +679,67 @@ namespace tgKlixxBot
                                 }
                                 else winnerstring = gewinner[0] + " gewinnt!";
 
-                                highscore = -1;
-                                foreach (KeyValuePair<string, long> entry in lars_punkte)
+                                if (!double.IsNaN(lars))
                                 {
-                                    if (entry.Value > highscore) highscore = entry.Value;
-                                }
-                                List<string> larskoenig = new List<string>();
-                                foreach (KeyValuePair<string, long> entry in lars_punkte)
-                                    if (entry.Value == highscore) larskoenig.Add(entry.Key);
-
-                                highscore = -1;
-                                foreach (KeyValuePair<string, long> entry in florentin_punkte)
-                                {
-                                    if (entry.Value > highscore) highscore = entry.Value;
-                                }
-                                List<string> florentinkoenig = new List<string>();
-                                foreach (KeyValuePair<string, long> entry in florentin_punkte)
-                                    if (entry.Value == highscore) florentinkoenig.Add(entry.Key);
-
-                                string florentinkoenigstring = "";
-                                if (florentinkoenig.Count > 1)
-                                {
-                                    florentinkoenigstring += "Die Florentinkönige sind: ";
-                                    for (int i = 0; i < florentinkoenig.Count; i++)
+                                    Console.WriteLine("Lars berechnen");
+                                    highscore = -1;
+                                    foreach (KeyValuePair<string, long> entry in lars_punkte)
                                     {
-                                        florentinkoenigstring += florentinkoenig[i];
-                                        if (i == florentinkoenig.Count - 2) florentinkoenigstring += " und ";
-                                        else
+                                        if (entry.Value > highscore) highscore = entry.Value;
+                                    }
+                                    List<string> larskoenig = new List<string>();
+                                    foreach (KeyValuePair<string, long> entry in lars_punkte)
+                                        if (entry.Value == highscore) larskoenig.Add(entry.Key);
+
+                                    string larskoenigstring = "";
+                                    if (larskoenig.Count > 1)
+                                    {
+                                        larskoenigstring += "Die Larskönige sind: ";
+                                        for (int i = 0; i < larskoenig.Count; i++)
                                         {
-                                            if (i == gewinner.Count - 1) florentinkoenigstring += ".";
-                                            else florentinkoenigstring += ", ";
+                                            larskoenigstring += larskoenig[i];
+                                            if (i == larskoenig.Count - 2) larskoenigstring += " und ";
+                                            else
+                                            {
+                                                if (i == gewinner.Count - 1) larskoenigstring += ".";
+                                                else larskoenigstring += ", ";
+                                            }
                                         }
                                     }
+                                    else larskoenigstring = larskoenig[0] + "ist Larskönig!";
                                 }
-                                else florentinkoenigstring = florentinkoenig[0] + "ist Florentinkönig!";
-
-                                string larskoenigstring = "";
-                                if (larskoenig.Count > 1)
+                                
+                                if (!double.IsNaN(florentin))
                                 {
-                                    larskoenigstring += "Die Larskönige sind: ";
-                                    for (int i = 0; i < larskoenig.Count; i++)
+                                    Console.WriteLine("Florentin berechnen");
+                                    highscore = -1;
+                                    foreach (KeyValuePair<string, long> entry in florentin_punkte)
                                     {
-                                        larskoenigstring += larskoenig[i];
-                                        if (i == larskoenig.Count - 2) larskoenigstring += " und ";
-                                        else
+                                        if (entry.Value > highscore) highscore = entry.Value;
+                                    }
+                                    List<string> florentinkoenig = new List<string>();
+                                    foreach (KeyValuePair<string, long> entry in florentin_punkte)
+                                        if (entry.Value == highscore) florentinkoenig.Add(entry.Key);
+
+                                    string florentinkoenigstring = "";
+                                    if (florentinkoenig.Count > 1)
+                                    {
+                                        florentinkoenigstring += "Die Florentinkönige sind: ";
+                                        for (int i = 0; i < florentinkoenig.Count; i++)
                                         {
-                                            if (i == gewinner.Count - 1) larskoenigstring += ".";
-                                            else larskoenigstring += ", ";
+                                            florentinkoenigstring += florentinkoenig[i];
+                                            if (i == florentinkoenig.Count - 2) florentinkoenigstring += " und ";
+                                            else
+                                            {
+                                                if (i == gewinner.Count - 1) florentinkoenigstring += ".";
+                                                else florentinkoenigstring += ", ";
+                                            }
                                         }
                                     }
+                                    else florentinkoenigstring = florentinkoenig[0] + "ist Florentinkönig!";
                                 }
-                                else larskoenigstring = larskoenig[0] + "ist Larskönig!";
 
+                                
                                 foreach (string winnername in gewinner) {
                                     makeWinBorder(winnername);
                                     if (kronenliste.ContainsKey(winnername))
@@ -798,13 +840,13 @@ namespace tgKlixxBot
                                 // Berechne Punkte für jeden Teilnehmer
                                 foreach (KeyValuePair<string, double> tipp in distanzen)
                                 {
-                                    if (tipp.Value == lars_distanz)
+                                    if (tipp.Value == lars_distanz && lars_distanz != double.NaN)
                                         if (!lars_punkte.ContainsKey(tipp.Key))
                                             lars_punkte[tipp.Key] = 1;
                                         else
                                             lars_punkte[tipp.Key] += 1;
 
-                                    if (tipp.Value == florentin_distanz)
+                                    if (tipp.Value == florentin_distanz && florentin_distanz != double.NaN)
                                         if (!florentin_punkte.ContainsKey(tipp.Key))
                                             florentin_punkte[tipp.Key] = 1;
                                         else
@@ -865,6 +907,10 @@ namespace tgKlixxBot
 
                                         scoreboard[tipp.Key] += punkte;
                                     }
+
+                                    // Reset Florentin's and Lars' guesses
+                                    florentin = double.NaN;
+                                    lars = double.NaN;
                                 }
 
                                 // Resetting multipliers
