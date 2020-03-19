@@ -11,11 +11,13 @@ namespace tgKlixxBot
         const string FISCHKARTE1 = "CAADAgADHQAD0OMSJfSJfsT8qWA8Ag";
         const string FISCHKARTE2 = "CAADAgADIgAD0OMSJd26KQVp04LxAg";
         const string FISCHKARTE3 = "CAADAgADIAAD0OMSJYaEC7hAqnKLAg";
+        const string SENFKARTE = "CAACAgIAAx0CUJ0OhgACc41ec1zvc02ydg6UteC5hp2DU1CZ8QACFQEAAtDjEiWHoGfN1Vqe7RgE";
         const string TELEFON = "CAADAgADLwAD0OMSJVIqnEoF7YPMAg";
         const string MALZWEI = "CAADAgADGgAD0OMSJZWDWHnfH6HbAg";
         const string DEUTSCH = "CAADAgADGQAD0OMSJZit8V6tPHuLAg";
         const string TIMECODE = "CAADAgADGAAD0OMSJUaRH8dInLrkAg";
         const string VERFLIXXT = "CAADAgADHwAD0OMSJZk7KA8NijFnAg";
+        const string LOGO_PFIFFZIFF = "CAACAgIAAx0CUJ0OhgACc4xec1zuz9DgWQ5vzPWC5vTDEuEsmgACFAEAAtDjEiVT_dggPx0EiRgE";
         const string DIEACHT = "CAADAgADNgAD0OMSJeeeTu0RCBK9Ag";
         const string KRONE = "CAADAgADHAAD0OMSJT9D6UXf";
         const string GEIERPUPPE = "CAADAgADIQAD0OMSJcqtZhKFb97GAg";
@@ -179,7 +181,8 @@ namespace tgKlixxBot
                             sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.3 gepatcht!\n" +
                                 " - Larskönig und Florentinkönig hinzugefügt.\n" +
                                 " - Updates bei Begrüßungssprüchen.\n" +
-                                " - Undercoverkartenfluch entfernt.");
+                                " - Undercoverkartenfluch entfernt.\n" +
+                                " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)");
                             command_detected = true;
                         }
 
@@ -256,7 +259,7 @@ namespace tgKlixxBot
                             if (update.message.text.Contains("ziffern"))
                             {
                                 ziffern = true;
-                                sendSticker(update.message.chat.id, VERFLIXXT);
+                                sendSticker(update.message.chat.id, LOGO_PFIFFZIFF);
                                 sendMessage(update.message.chat.id, WILLKOMMEN_ZIFF[r.Next(0, WILLKOMMEN_ZIFF.Count())], kuchisch: kuchisch);
                             }
                             else
@@ -512,7 +515,11 @@ namespace tgKlixxBot
                                 }
                                 else
                                 {
-                                    sendSticker(update.message.chat.id, FISCHKARTENBILDER[r.Next(0, 2)], update.message.message_id);
+                                    if (ziffern)
+                                        sendSticker(update.message.chat.id, SENFKARTE, update.message.message_id);
+                                    else
+                                        sendSticker(update.message.chat.id, FISCHKARTENBILDER[r.Next(0, 2)], update.message.message_id);
+
                                     fischkarten += " " + update.message.from.username + " ";
                                     fischkarte_gesetzt += " " + update.message.from.username + " ";
                                     Console.WriteLine("Fischkarten bereits gesetzt: " + fischkarte_gesetzt);
