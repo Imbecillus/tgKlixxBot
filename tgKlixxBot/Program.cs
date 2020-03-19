@@ -122,6 +122,8 @@ namespace tgKlixxBot
             string spielleiter = "";
             bool schon_gemeckert = false;
             bool playing = true;
+            bool florentinkoenig_berechnen = false;
+            bool larskoenig_berechnen = false;
 
             Console.WriteLine("Es ist schooooon wieder Donnerstag!");
             Console.WriteLine("Der KLIXXBOT ist am Start!");
@@ -432,6 +434,7 @@ namespace tgKlixxBot
                                 string tipp = update.message.text.Substring(update.message.text.IndexOf(' '));
                                 tipp = tipp.Replace('.', ',');
                                 florentin = double.Parse(tipp);
+                                florentinkoenig_berechnen = true;
                             }
 
                             if (update.message.text.ToLower().StartsWith("/lars"))
@@ -440,6 +443,7 @@ namespace tgKlixxBot
                                 string tipp = update.message.text.Substring(update.message.text.IndexOf(' '));
                                 tipp = tipp.Replace('.', ',');
                                 lars = double.Parse(tipp);
+                                larskoenig_berechnen = true;
                             }
 
                             if (update.message.text.ToLower().StartsWith("/klixx") | update.message.text.ToLower().StartsWith("/preis") | update.message.text.ToLower().StartsWith("/ziff"))
@@ -686,7 +690,7 @@ namespace tgKlixxBot
                                 }
                                 else winnerstring = gewinner[0] + " gewinnt!";
 
-                                if (!double.IsNaN(lars))
+                                if (larskoenig_berechnen)
                                 {
                                     Console.WriteLine("Lars berechnen");
                                     highscore = -1;
@@ -713,10 +717,11 @@ namespace tgKlixxBot
                                             }
                                         }
                                     }
-                                    else larskoenigstring = larskoenig[0] + "ist Larskönig!";
+                                    else larskoenigstring = larskoenig[0] + " ist Larskönig!";
+                                    sendMessage(update.message.chat.id, larskoenigstring);
                                 }
                                 
-                                if (!double.IsNaN(florentin))
+                                if (florentinkoenig_berechnen)
                                 {
                                     Console.WriteLine("Florentin berechnen");
                                     highscore = -1;
@@ -743,7 +748,8 @@ namespace tgKlixxBot
                                             }
                                         }
                                     }
-                                    else florentinkoenigstring = florentinkoenig[0] + "ist Florentinkönig!";
+                                    else florentinkoenigstring = florentinkoenig[0] + " ist Florentinkönig!";
+                                    sendMessage(update.message.chat.id, florentinkoenigstring);
                                 }
 
                                 
@@ -844,21 +850,31 @@ namespace tgKlixxBot
                                         florentin_distanz = distanz_neu_florentin;
                                     }
                                 }
+
                                 // Berechne Punkte für jeden Teilnehmer
+                                if (lars != double.NaN)
+                                    foreach (KeyValuePair<string, double> tipp in lars_distanzen)
+                                    {
+                                        if (tipp.Value == lars_distanz)
+                                            if (!lars_punkte.ContainsKey(tipp.Key))
+                                                lars_punkte[tipp.Key] = 1;
+                                            else
+                                                lars_punkte[tipp.Key] += 1;
+                                    }
+
+
+                                if (florentin != double.NaN)
+                                    foreach (KeyValuePair<string, double> tipp in florentin_distanzen)
+                                    {
+                                        if (tipp.Value == florentin_distanz)
+                                            if (!florentin_punkte.ContainsKey(tipp.Key))
+                                                florentin_punkte[tipp.Key] = 1;
+                                            else
+                                                florentin_punkte[tipp.Key] += 1;
+                                    }
+
                                 foreach (KeyValuePair<string, double> tipp in distanzen)
                                 {
-                                    if (tipp.Value == lars_distanz && lars_distanz != double.NaN)
-                                        if (!lars_punkte.ContainsKey(tipp.Key))
-                                            lars_punkte[tipp.Key] = 1;
-                                        else
-                                            lars_punkte[tipp.Key] += 1;
-
-                                    if (tipp.Value == florentin_distanz && florentin_distanz != double.NaN)
-                                        if (!florentin_punkte.ContainsKey(tipp.Key))
-                                            florentin_punkte[tipp.Key] = 1;
-                                        else
-                                            florentin_punkte[tipp.Key] += 1;
-
                                     if (tipp.Value == distanz)
                                     {
                                         long punkte = 1;
