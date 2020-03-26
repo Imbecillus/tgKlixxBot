@@ -179,6 +179,9 @@ namespace tgKlixxBot
                                 sendMessage(update.message.chat.id, TSCHÜSS);
                             sendSticker(update.message.chat.id, GUNAKLIBO);
                             command_detected = true;
+                            var exit_request = new RestSharp.RestRequest("https://api.telegram.org/" + botcode + "/getUpdates?offset=" + offset.ToString(), RestSharp.DataFormat.Json);
+                            Request.AddParameter("offset", (offset).ToString());
+                            Client.Execute<Dictionary<string, string>>(exit_request);
                             Environment.Exit(0);
                         }
 
