@@ -48,6 +48,17 @@ namespace tgKlixxBot
                                            "Freundschaft ist unbezahlbar. Was man kaufen kann, ist billiger Plastikschrott aus China und darum geht es in dieser Sendung.",
                                            "Die schwarze farbe ist jetzt heißer Verkauf."};
 
+        static string[] TSCHÜSS =
+        {
+            "GuNaKliFre!",
+            "Sachtma, habt ihr eigentlich nen VÖLLIGEN SCHAADEN? LANGE MACH ICH DAS NICH MEHR MIT HIER IHR EU—"
+        };
+
+        static string[] TSCHÜSS_ZIFF =
+        {
+            "Good buy!"
+        };
+
         static string[] QUATSCHKOMMANDO = {"Dieses Feature ist in der Testversion nicht enthalten. Möchten Sie 590 Plu ausgeben und auf die Premiumversion upgraden?", 
                                            "Quatschkommando.",
                                            "Hä?"};
@@ -162,7 +173,10 @@ namespace tgKlixxBot
 
                         if (update.message.text.StartsWith("/gunaklibo"))
                         {
-                            sendMessage(update.message.chat.id, "GuNaKliFre!", kuchisch:kuchisch);
+                            if (ziffern)
+                                sendMessage(update.message.chat.id, TSCHÜSS_ZIFF);
+                            else
+                                sendMessage(update.message.chat.id, TSCHÜSS);
                             sendSticker(update.message.chat.id, GUNAKLIBO);
                             command_detected = true;
                         }
@@ -180,20 +194,26 @@ namespace tgKlixxBot
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes"))
                         {
-                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.3 gepatcht!\n" +
-                                " - Larskönig und Florentinkönig hinzugefügt.\n" +
-                                " - Updates bei Begrüßungssprüchen.\n" +
-                                " - Undercoverkartenfluch entfernt.\n" +
-                                " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)");
+                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.4 gepatcht!\n" +
+                                " - Interne ultrafancy Codeverbesserungen.\n" +
+                                " - Klixxi kann jetzt vernünftig Tschüss sagen.");
                             command_detected = true;
                         }
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes 1.3")) {
                             sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3 gepatcht!\n" +
+                                "1.3:\n" +
                                 " - Der Kronencounter ist daaa!\n" +
+                                "1.3.1:\n" +
                                 " - Undercoverkarte implementiert.\n" +
+                                "1.3.2:\n" +
                                 " - Kuchisch hinzugefügt.\n" +
-                                " - Fischkartenfluch entfernt.");
+                                " - Fischkartenfluch entfernt.\n" +
+                                "1.3.3:\n" +
+                                " - Larskönig und Florentinkönig hinzugefügt.\n" +
+                                " - Updates bei Begrüßungssprüchen.\n" +
+                                " - Undercoverkartenfluch entfernt.\n" +
+                                " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)");
                             command_detected = true;
                         }
 
@@ -477,7 +497,7 @@ namespace tgKlixxBot
                                     sendMessage(update.message.chat.id, "Krraahh, das wurde schon getippt, du Eumel! Bitte gib einen neuen Tipp ab!", update.message.message_id, kuchisch: kuchisch);
                                 }
 
-                                if (newguess == 333)
+                                if (newguess == 333 || newguess == 3.33)
                                     sendSticker(update.message.chat.id, DREIDREIDREI, update.message.message_id);
 
                                 // Autogeier
