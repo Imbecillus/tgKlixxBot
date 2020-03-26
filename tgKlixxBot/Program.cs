@@ -44,7 +44,7 @@ namespace tgKlixxBot
 
         static string[] WILLKOMMEN_ZIFF = {"PFIFFIGE ZIFFERN! PFIFFIGE ZIFFERN! PFIFF-I-GE... ZIFFERN!",
                                            "BWL, 1. Stunde: Plastik ist spottbillig und dumme Leute zahlen viel Geld. So, geht nach Hause.",
-                                           "Es ist schoooooooooooooon wieder Donnerstag!",
+                                           "Es ist schoooooooooooooon wieder {DAYOFWEEK}!",
                                            "Freundschaft ist unbezahlbar. Was man kaufen kann, ist billiger Plastikschrott aus China und darum geht es in dieser Sendung.",
                                            "Die schwarze farbe ist jetzt heißer Verkauf."};
 
@@ -179,6 +179,7 @@ namespace tgKlixxBot
                                 sendMessage(update.message.chat.id, TSCHÜSS);
                             sendSticker(update.message.chat.id, GUNAKLIBO);
                             command_detected = true;
+                            Environment.Exit(0);
                         }
 
                         if (update.message.text.StartsWith("/pufoklixx"))
