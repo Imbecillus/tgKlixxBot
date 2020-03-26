@@ -135,6 +135,7 @@ namespace tgKlixxBot
             bool playing = true;
             bool florentinkoenig_berechnen = false;
             bool larskoenig_berechnen = false;
+            bool schon_vorgefreut = false;
 
             Console.WriteLine("Es ist schooooon wieder Donnerstag!");
             Console.WriteLine("Der KLIXXBOT ist am Start!");
@@ -153,7 +154,15 @@ namespace tgKlixxBot
 
                 foreach (TgUpdate update in updates)
                 {
-                    try {
+                    try
+                    {
+                        // Vorfreude
+                        TimeSpan zeit = System.DateTime.Now.TimeOfDay;
+                        if (zeit.Hours == 18 && zeit.Minutes == 45 && !schon_vorgefreut) {
+                            sendMessage(update.message.chat.id, "Ooooh bald geht's los! Ich bin schon ganz aufgeregt, krrrah!");
+                            schon_vorgefreut = true;
+                        }
+
                         bool command_detected = false;
                         if (update.message == null) continue;
                         if (update.message.text == null) continue;
