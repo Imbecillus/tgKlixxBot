@@ -262,12 +262,12 @@ namespace tgKlixxBot
                             {
                                 ziffern = true;
                                 sendSticker(update.message.chat.id, LOGO_PFIFFZIFF);
-                                sendMessage(update.message.chat.id, WILLKOMMEN_ZIFF[r.Next(0, WILLKOMMEN_ZIFF.Count())], kuchisch: kuchisch);
+                                sendMessage(update.message.chat.id, WILLKOMMEN_ZIFF, kuchisch: kuchisch);
                             }
                             else
                             {
                                 sendSticker(update.message.chat.id, VERFLIXXT);
-                                sendMessage(update.message.chat.id, WILLKOMMEN[r.Next(0, WILLKOMMEN.Count())], kuchisch: kuchisch);
+                                sendMessage(update.message.chat.id, WILLKOMMEN, kuchisch: kuchisch);
                             }
                             running = true;
                             scoreboard = new Dictionary<string, long>();
@@ -810,7 +810,7 @@ namespace tgKlixxBot
                                 if (r.NextDouble() < 0.1)
                                 {
                                     Console.WriteLine("Zeit für GAGS LEUDE");
-                                    sendMessage(update.message.chat.id, TU_ES[r.Next(0, TU_ES.Count())]);
+                                    sendMessage(update.message.chat.id, TU_ES);
                                     System.Threading.Thread.Sleep(2000);
                                 }
 
@@ -968,7 +968,7 @@ namespace tgKlixxBot
 
                             if (update.message.text.StartsWith("/") & command_detected == false)
                             {
-                                sendMessage(update.message.chat.id, QUATSCHKOMMANDO[r.Next(0, QUATSCHKOMMANDO.Count())]);
+                                sendMessage(update.message.chat.id, QUATSCHKOMMANDO);
                             }
                         }
                     }
@@ -1073,6 +1073,16 @@ namespace tgKlixxBot
                 Request.AddParameter("reply_to_message_id", reply_to_message_id.ToString());
             }
             Client.Execute(Request);
+        }
+
+        static void sendMessage(string chat_id, string[] message_array, long reply_to_message_id = -1, bool kuchisch = false)
+        {
+            // Select a random string from message_array and send a message with that string
+            Random r = new Random();
+
+            string message = message_array[r.Next(0, message_array.Count())];
+            
+            sendMessage(chat_id, message, reply_to_message_id, kuchisch);
         }
 
         static void sendMessage(string chat_id, string text, long reply_to_message_id = -1, bool kuchisch = false)
