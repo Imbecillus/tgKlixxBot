@@ -48,6 +48,13 @@ namespace tgKlixxBot
                                            "Freundschaft ist unbezahlbar. Was man kaufen kann, ist billiger Plastikschrott aus China und darum geht es in dieser Sendung.",
                                            "Die schwarze farbe ist jetzt heißer Verkauf."};
 
+        static string[] HALLO = {"Krrrah, hallo {SPIELERNAME}!",
+                                 "Was geeeeeeht, {SPIELERNAME}?",
+                                 "{SPIELERNAME}! Mooin!",
+                                 "Heeey, {SPIELERNAME} ist ja auch am Start! Krrraah!",
+                                 "Woop woop! {SPIELERNAME} in the HOUSE!",
+                                 "Oh, {SPIELERNAME}, ich hatte Sie gar nicht reinkommen sehen. Krrah, guten Abend, krrah krrah."};
+
         static string[] TSCHÜSS =
         {
             "GuNaKliFre!",
@@ -128,6 +135,7 @@ namespace tgKlixxBot
                     break;
             }
             WILLKOMMEN[0] = WILLKOMMEN[0].Replace("{DAYOFWEEK}", wochentag);
+            WILLKOMMEN_ZIFF[2] = WILLKOMMEN_ZIFF[2].Replace("{DAYOFWEEK}", wochentag);
 
             bool ziffern = false;
             string spielleiter = "";
@@ -176,6 +184,9 @@ namespace tgKlixxBot
                         if (update.message.from.username == null) update.message.from.username = update.message.from.first_name + update.message.from.last_name;
                         else update.message.from.username = "@" + update.message.from.username;
 
+                        if (update.message.from.username == "Die Fischkarte" && ziffern)
+                            update.message.from.username = "Die Senfkarte";
+
                         bool kuchisch = false;
                         if (update.message.from.username == "@Kuchenfan")
                             kuchisch = true;
@@ -207,9 +218,9 @@ namespace tgKlixxBot
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes"))
                         {
-                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.4 gepatcht!\n" +
-                                " - Interne ultrafancy Codeverbesserungen.\n" +
-                                " - Klixxi kann jetzt vernünftig Tschüss sagen.");
+                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.5 gepatcht!\n" +
+                                " - Klixxi kann jetzt NOCH besser Hallo sagen! (Jetzt wirklich...)\n" +
+                                " - Ein neuer Ulk.");
                             command_detected = true;
                         }
 
@@ -226,7 +237,10 @@ namespace tgKlixxBot
                                 " - Larskönig und Florentinkönig hinzugefügt.\n" +
                                 " - Updates bei Begrüßungssprüchen.\n" +
                                 " - Undercoverkartenfluch entfernt.\n" +
-                                " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)");
+                                " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)\n" +
+                                "1.3.4:\n" +
+                                " - Interne ultrafancy Codeverbesserungen.\n" +
+                                " - Klixxi kann jetzt vernünftig Tschüss sagen.");
                             command_detected = true;
                         }
 
@@ -308,9 +322,9 @@ namespace tgKlixxBot
                             command_detected = true;
                         }
 
-                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi "))
+                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi ") | update.message.text.ToLower().Contains("hey"))
                         {
-                            sendMessage(update.message.chat.id, "Krrah, hallo " + update.message.from.first_name, update.message.message_id, kuchisch: kuchisch);
+                            sendMessage(update.message.chat.id, HALLO, update.message.message_id, spielername: update.message.from.first_name, kuchisch: kuchisch);
                             Console.WriteLine("\"Hallo\" recognized. Replying.");
                             command_detected = true;
                         }
@@ -1108,12 +1122,13 @@ namespace tgKlixxBot
             Client.Execute(Request);
         }
 
-        static void sendMessage(string chat_id, string[] message_array, long reply_to_message_id = -1, bool kuchisch = false)
+        static void sendMessage(string chat_id, string[] message_array, long reply_to_message_id = -1, string spielername = "", bool kuchisch = false)
         {
             // Select a random string from message_array and send a message with that string
             Random r = new Random();
 
             string message = message_array[r.Next(0, message_array.Count())];
+            message = message.Replace("{SPIELERNAME}", spielername);
             
             sendMessage(chat_id, message, reply_to_message_id, kuchisch);
         }
