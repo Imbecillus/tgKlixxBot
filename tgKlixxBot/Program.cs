@@ -101,10 +101,8 @@ namespace tgKlixxBot
             int video_nr = 1;
             List<string> players = new List<string>();
             List<string> players_getippt = new List<string>();
-
-            // Importing highscore saves
-            string kronenimport = System.IO.File.ReadAllText("kronenliste.json");
-            Dictionary<string, long> kronenliste = JsonConvert.DeserializeObject<Dictionary<string, long>>(kronenimport);
+            Dictionary<string, long> kronenliste = new Dictionary<string, long>();
+            string highscorefile = "error.json";
 
             // Importing bot api identifier
             botcode = System.IO.File.ReadAllText("botcode.txt");
@@ -218,9 +216,8 @@ namespace tgKlixxBot
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes"))
                         {
-                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.5 gepatcht!\n" +
-                                " - Klixxi kann jetzt NOCH besser Hallo sagen! (Jetzt wirklich...)\n" +
-                                " - Ein neuer Ulk.");
+                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.6 gepatcht!\n" +
+                                " - Getrennte Kronen für PfiffZiff und Klixx. @Imbecillus hat die neuen Punktestände rekonstruiert und bestimmt alles falsch gemacht.");
                             command_detected = true;
                         }
 
@@ -240,7 +237,10 @@ namespace tgKlixxBot
                                 " - Sticker für Pfiffige Ziffern (Danke @Coldstand!)\n" +
                                 "1.3.4:\n" +
                                 " - Interne ultrafancy Codeverbesserungen.\n" +
-                                " - Klixxi kann jetzt vernünftig Tschüss sagen.");
+                                " - Klixxi kann jetzt vernünftig Tschüss sagen.\n" +
+                                "1.3.5:\n" +
+                                " - Klixxi kann jetzt NOCH besser Hallo sagen! (Jetzt wirklich...)\n" +
+                                " - Ein neuer Ulk.");
                             command_detected = true;
                         }
 
@@ -320,9 +320,17 @@ namespace tgKlixxBot
                             scoreboard = new Dictionary<string, long>();
                             spielleiter = update.message.from.username;
                             command_detected = true;
+
+                            // Importing highscore saves
+                            if (ziffern)
+                                highscorefile = "kronenliste_ziff.json";
+                            else
+                                highscorefile = "kronenliste_klixx.json";
+                            string kronenimport = System.IO.File.ReadAllText(highscorefile);
+                            kronenliste = JsonConvert.DeserializeObject<Dictionary<string, long>>(kronenimport);
                         }
 
-                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi ") | update.message.text.ToLower().Contains("hey"))
+                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi ") | update.message.text.ToLower().StartsWith("hi") | update.message.text.ToLower().Contains("hey"))
                         {
                             sendMessage(update.message.chat.id, HALLO, update.message.message_id, spielername: update.message.from.first_name, kuchisch: kuchisch);
                             Console.WriteLine("\"Hallo\" recognized. Replying.");
@@ -813,7 +821,7 @@ namespace tgKlixxBot
                                 }
 
                                 string json_export = JsonConvert.SerializeObject(kronenliste);
-                                System.IO.File.WriteAllText("kronenliste.json", json_export);
+                                System.IO.File.WriteAllText(highscorefile, json_export);
 
                                 sendSticker(update.message.chat.id, KRONE);
                                 sendMessage(update.message.chat.id, winnerstring);
