@@ -46,24 +46,31 @@ namespace tgKlixxBot
                                            "BWL, 1. Stunde: Plastik ist spottbillig und dumme Leute zahlen viel Geld. So, geht nach Hause.",
                                            "Es ist schoooooooooooooon wieder {DAYOFWEEK}!",
                                            "Freundschaft ist unbezahlbar. Was man kaufen kann, ist billiger Plastikschrott aus China und darum geht es in dieser Sendung.",
-                                           "Die schwarze farbe ist jetzt heißer Verkauf."};
+                                           "Die schwarze farbe ist jetzt heißer Verkauf.",
+                                           "GOTT, ist das eine schreckliche Albtraumwelt."};
 
         static string[] HALLO = {"Krrrah, hallo {SPIELERNAME}!",
                                  "Was geeeeeeht, {SPIELERNAME}?",
                                  "{SPIELERNAME}! Mooin!",
                                  "Heeey, {SPIELERNAME} ist ja auch am Start! Krrraah!",
                                  "Woop woop! {SPIELERNAME} in the HOUSE!",
-                                 "Oh, {SPIELERNAME}, ich hatte Sie gar nicht reinkommen sehen. Krrah, guten Abend, krrah krrah."};
+                                 "Oh, {SPIELERNAME}, ich hatte Sie gar nicht reinkommen sehen. Krrah, guten Abend, krrah krrah.",
+                                 "Die Klixx werden mit dir sein, {SPIELERNAME}. Immer.",
+                                 "Ja, moin!",
+                                 "{SPIELERNAME}! Großartig!",
+                                 "Halt die Ohren steif, {SPIELERNAME}!"};
 
         static string[] TSCHÜSS =
         {
             "GuNaKliFre!",
-            "Sachtma, habt ihr eigentlich nen VÖLLIGEN SCHAADEN? LANGE MACH ICH DAS NICH MEHR MIT HIER IHR EU—"
+            "Sachtma, habt ihr eigentlich nen VÖLLIGEN SCHAADEN? LANGE MACH ICH DAS NICH MEHR MIT HIER IHR EU—",
+            "War ne schöne Sendung heute!"
         };
 
         static string[] TSCHÜSS_ZIFF =
         {
-            "Good buy!"
+            "Good buy!",
+            "LB Klixxi"
         };
 
         static string[] QUATSCHKOMMANDO = {"Dieses Feature ist in der Testversion nicht enthalten. Möchten Sie 590 Plu ausgeben und auf die Premiumversion upgraden?", 
@@ -389,9 +396,9 @@ namespace tgKlixxBot
                         if (update.message.text.ToLower().StartsWith("/help ziff"))
                         {
                             string helptext = "Krrah! Bei Pfiffige Ziffern geht auch:\n" +
-                                "/ziff: Preis schätzen" +
-                                "/preis: Preis schätzen" +
-                                "/senfkarte: Die Senfkarte ziehen!\n";
+                                "/ziff: Preis schätzen\n" +
+                                "/preis: Preis schätzen\n" +
+                                "/senfkarte: Die Senfkarte ziehen!";
 
                             sendMessage(update.message.chat.id, helptext, update.message.message_id);
                             command_detected = true;
