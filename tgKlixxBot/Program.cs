@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using Renci.SshNet;
 
 namespace tgKlixxBot
 {
@@ -109,7 +108,9 @@ namespace tgKlixxBot
             List<string> players = new List<string>();
             List<string> players_getippt = new List<string>();
             Dictionary<string, long> kronenliste = new Dictionary<string, long>();
+            Dictionary<string, Dictionary<double, int>> userstats = new Dictionary<string, Dictionary<double, int>>();
             string highscorefile = "error.json";
+            string userstatsfile = "error.json";
 
             // Importing bot api identifier
             botcode = System.IO.File.ReadAllText("botcode.txt");
@@ -164,37 +165,48 @@ namespace tgKlixxBot
                 var Response = Client.Execute<Dictionary<string, string>>(Request);
                 string result = Response.Data["result"];
                 List<TgUpdate> updates = JsonConvert.DeserializeObject<List<TgUpdate>>(result);
+                
+                // Vorfreude
+                TimeSpan zeit = System.DateTime.Now.TimeOfDay;
+                if (zeit.Hours == 18 && zeit.Minutes == 45 && !schon_vorgefreut)
+                {
+                    sendMessage("-1001352470150", "Ooooh bald geht's los! Ich bin schon ganz aufgeregt, krrrah!");
+                    schon_vorgefreut = true;
+                }
 
                 foreach (TgUpdate update in updates)
                 {
                     try
                     {
-                        // Vorfreude
-                        TimeSpan zeit = System.DateTime.Now.TimeOfDay;
-                        if (zeit.Hours == 18 && zeit.Minutes == 45 && !schon_vorgefreut) {
-                            sendMessage(update.message.chat.id, "Ooooh bald geht's los! Ich bin schon ganz aufgeregt, krrrah!");
-                            schon_vorgefreut = true;
-                        }
-
                         bool command_detected = false;
-                        if (update.message == null) continue;
-                        if (update.message.text == null) continue;
                         offset = long.Parse(update.update_id) + 1;
 
+                        // Skip empty messages
+                        if (update.message == null) continue;
+                        if (update.message.text == null) continue;
+
+                        // Console log
                         Console.WriteLine("MESSAGE " + update.message.message_id);
                         Console.Write(update.message.from.first_name + " " + update.message.from.last_name + "(" + update.message.from.username + "): ");
                         Console.Write(update.message.text);
                         Console.Write(Environment.NewLine);
                         
+                        // Set username to display name if there is no username
                         if (update.message.from.username == null) update.message.from.username = update.message.from.first_name + update.message.from.last_name;
                         else update.message.from.username = "@" + update.message.from.username;
 
+                        // Ulk: Fischkarte = Senfkarte, wenn PfiffZiff gespielt wird
                         if (update.message.from.username == "Die Fischkarte" && ziffern)
                             update.message.from.username = "Die Senfkarte";
 
+                        // Ulk: Wenn Nachricht von Kuchenfan ist: Kuchisch sprechen
                         bool kuchisch = false;
                         if (update.message.from.username == "@Kuchenfan")
                             kuchisch = true;
+
+                        // Kompatibilität: Auch Befehle mit "!" erkennen
+                        if (update.message.text.StartsWith("!"))
+                            update.message.text = string.Concat("/", update.message.text.Substring(1));
 
                         if (update.message.text.StartsWith("/gunaklibo"))
                         {
@@ -223,8 +235,11 @@ namespace tgKlixxBot
 
                         if (update.message.text.ToLower().StartsWith("/patchnotes"))
                         {
-                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.3.6 gepatcht!\n" +
-                                " - Getrennte Kronen für PfiffZiff und Klixx. @Imbecillus hat die neuen Punktestände rekonstruiert und bestimmt alles falsch gemacht.");
+                            sendMessage(update.message.chat.id, "Krrraaah! @Imbecillus hat mich gerade auf Version Beta 1.4 gepatcht!\n" +
+                                " - Klixxi versteht jetzt auch Befehle, die mit '!' beginnen.\n" +
+                                " - Spieler können gekickt werden, wenn sie z.B. afk gegangen sind und Klixxi darum nicht mehr weiß, ob schon alle getippt haben.\n" +
+                                " - Mit '/tipps' könnt ihr euch jetzt anzeigen lassen, was für Schätzungen bereits abgegeben wurden.\n" +
+                                " - Ihr könnt jetzt mit '/stats' eure Stats sehen! (Oder mit '/stats [name]' die eines beliebigen Spielers.");
                             command_detected = true;
                         }
 
@@ -247,7 +262,9 @@ namespace tgKlixxBot
                                 " - Klixxi kann jetzt vernünftig Tschüss sagen.\n" +
                                 "1.3.5:\n" +
                                 " - Klixxi kann jetzt NOCH besser Hallo sagen! (Jetzt wirklich...)\n" +
-                                " - Ein neuer Ulk.");
+                                " - Ein neuer Ulk.\n" +
+                                "1.3.6:\n" +
+                                " - Getrennte Kronen für PfiffZiff und Klixx. @Imbecillus hat die neuen Punktestände rekonstruiert und bestimmt alles falsch gemacht.");
                             command_detected = true;
                         }
 
@@ -335,12 +352,26 @@ namespace tgKlixxBot
                                 highscorefile = "kronenliste_klixx.json";
                             string kronenimport = System.IO.File.ReadAllText(highscorefile);
                             kronenliste = JsonConvert.DeserializeObject<Dictionary<string, long>>(kronenimport);
+
+                            // Importing saved userstats
+                            if (ziffern)
+                                userstatsfile = "userstats_ziff.json";
+                            else
+                                userstatsfile = "userstats_klixx.json";
+                            string userstatimport = System.IO.File.ReadAllText(userstatsfile);
+                            userstats = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<double, int>>>(userstatimport);
                         }
 
-                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi ") | update.message.text.ToLower().StartsWith("hi") | update.message.text.ToLower().Contains("hey"))
+                        if (update.message.text.ToLower().Contains("hallo") | update.message.text.ToLower().Contains("huhu") | update.message.text.ToLower().Contains("hi ") | update.message.text.ToLower().StartsWith("hi ") | update.message.text.ToLower().Contains("hey") | update.message.text.ToLower() == "hi")
                         {
                             sendMessage(update.message.chat.id, HALLO, update.message.message_id, spielername: update.message.from.first_name, kuchisch: kuchisch);
                             Console.WriteLine("\"Hallo\" recognized. Replying.");
+                            command_detected = true;
+                        }
+
+                        if (update.message.text.ToLower().Contains("servas"))
+                        {
+                            sendMessage(update.message.chat.id, "Griaß di, " + update.message.from.first_name, update.message.message_id);
                             command_detected = true;
                         }
 
@@ -355,6 +386,13 @@ namespace tgKlixxBot
                         {
                             sendMessage(update.message.chat.id, "la FUENTE della cocina del fuego de la noche!", update.message.message_id, kuchisch: kuchisch);
                             Console.WriteLine("La FUENTE.");
+                            command_detected = true;
+                        }
+
+                        if (update.message.text.ToLower().Contains("Bonjour"))
+                        {
+                            sendMessage(update.message.chat.id, "Aaah, le Klixx c'est arrivé! Bon voyage, mes amis!");
+                            Console.WriteLine("Französisch.");
                             command_detected = true;
                         }
 
@@ -388,7 +426,9 @@ namespace tgKlixxBot
                                 "/klixx: Klixx des aktuellen Videos schätzen\n" +
                                 "/fischkarte: Die Fischkarte ziehen!\n" +
                                 "/undercover: Die Undercoverkarte ziehen!\n" +
-                                "/scores: Zwischenstand anzeigen";
+                                "/scores: Zwischenstand anzeigen\n" +
+                                "/tipps: Bisherige Tipps anzeigen\n" +
+                                "/stats: Statistiken anzeigen";
 
                             sendMessage(update.message.chat.id, helptext, update.message.message_id, kuchisch: kuchisch);
                             command_detected = true;
@@ -439,6 +479,16 @@ namespace tgKlixxBot
                                 Console.WriteLine("User: " + user);
                                 scoreboard[user] = scoreboard[user] + wert;
                                 command_detected = true;
+                            }
+
+                            if (update.message.text.ToLower().Contains("/kick"))
+                            {
+                                command_detected = true;
+                                string user = update.message.text.Substring(update.message.text.IndexOf(' ') + 1);
+                                Console.WriteLine("User: " + user);
+                                scoreboard.Remove(user);
+                                players.Remove(user);
+                                sendMessage(update.message.chat.id, "Krrrah, tschüüüüss " + user + "! (hehhehe)");
                             }
 
                             if (update.message.text.ToLower().StartsWith("/vk"))
@@ -700,6 +750,37 @@ namespace tgKlixxBot
                                 sendMessage(update.message.chat.id, scores);
                             }
 
+                            if (update.message.text.ToLower().StartsWith("/tipps"))
+                            {
+                                command_detected = true;
+                                Console.WriteLine("Command recognized (Tipps).");
+                                string tipps = "ABGEGEBENE TIPPS:\n";
+                                foreach (KeyValuePair<string, double> entry in guesses)
+                                {
+                                    tipps += entry.Key + ": " + entry.Value.ToString() + "\n";
+                                }
+                                sendMessage(update.message.chat.id, tipps);
+                            }
+
+                            if (update.message.text.ToLower().StartsWith("/stats"))
+                            {
+                                command_detected = true;
+
+                                string user;
+                                if (update.message.text.Contains(" "))
+                                    user = update.message.text.Substring(update.message.text.IndexOf(" "));
+                                else
+                                    user = update.message.from.username;
+
+                                double avg_all = calculateAverage(userstats[user]);
+                                double avg_today = calculateAverage(userstats[user], true);
+                                sendMessage(update.message.chat.id, user + " liegt durchschnittlich " + avg_all.ToString() + " daneben. \n");
+                                if (avg_today < avg_all)
+                                    sendMessage(update.message.chat.id, "Heute ist " + user + " besser als sonst und liegt durchschnittlich " + avg_today.ToString() + " daneben.");
+                                else
+                                    sendMessage(update.message.chat.id, "Heute hat " + user + " einen Quatschtag und liegt durchschnittlich " + avg_today.ToString() + " daneben.");
+                            }
+
                             if (update.message.text.ToLower().StartsWith("/kronen"))
                             {
                                 command_detected = true;
@@ -827,8 +908,20 @@ namespace tgKlixxBot
                                     }
                                 }
 
+                                // Kronen speichern
                                 string json_export = JsonConvert.SerializeObject(kronenliste);
                                 System.IO.File.WriteAllText(highscorefile, json_export);
+
+                                // Userstats speichern (& komprimieren)
+                                foreach (KeyValuePair<string, Dictionary<double, int>> paar in userstats)
+                                {
+                                    double avg = calculateAverage(paar.Value);
+                                    int total = sumStats(paar.Value);
+                                    userstats[paar.Key] = new Dictionary<double, int>();
+                                    userstats[paar.Key][avg] = total;
+                                }
+                                json_export = JsonConvert.SerializeObject(userstats);
+                                System.IO.File.WriteAllText(userstatsfile, json_export);
 
                                 sendSticker(update.message.chat.id, KRONE);
                                 sendMessage(update.message.chat.id, winnerstring);
@@ -876,6 +969,25 @@ namespace tgKlixxBot
                                     System.Threading.Thread.Sleep(2000);
                                 }
 
+                                // User Stats für Lars und Florentin
+                                if (larskoenig_berechnen)
+                                {
+                                    double daneben = wahrheit - lars;
+                                    if (userstats["Lars Paulsen"].ContainsKey(daneben))
+                                        userstats["Lars Paulsen"][daneben] += 1;
+                                    else
+                                        userstats["Lars Paulsen"][daneben] = 1;
+                                }
+                                if (florentinkoenig_berechnen)
+                                {
+                                    double daneben = wahrheit - florentin;
+                                    if (userstats["Florentin Will"].ContainsKey(daneben))
+                                        userstats["Florentin Will"][daneben] += 1;
+                                    else
+                                        userstats["Florentin Will"][daneben] = 1;
+                                }
+                                
+                                // Beste Distanz bestimmen
                                 double distanz = -1;
                                 double lars_distanz = -1;
                                 double florentin_distanz = -1;
@@ -937,6 +1049,16 @@ namespace tgKlixxBot
 
                                 foreach (KeyValuePair<string, double> tipp in distanzen)
                                 {
+                                    // In Userstats-Dict eintragen
+                                    if (!userstats.ContainsKey(tipp.Key))
+                                        userstats[tipp.Key] = new Dictionary<double, int>();
+
+                                    if (userstats[tipp.Key].ContainsKey(tipp.Value))
+                                        userstats[tipp.Key][tipp.Value] += 1;
+                                    else
+                                        userstats[tipp.Key][tipp.Value] = 1;
+
+                                    // Punkte verteilen wenn niedrigste Distanz
                                     if (tipp.Value == distanz)
                                     {
                                         long punkte = 1;
@@ -1246,6 +1368,42 @@ namespace tgKlixxBot
             optionlist += "\"" + options[options.Count()-1] + "\" ]";
             Request.AddParameter("options", optionlist);
             Client.Execute(Request);
+        }
+
+        static double calculateAverage(Dictionary<double, int> liste, bool skip_first = false)
+        {
+            double total = 0.0;
+            double number = 0;
+
+            foreach (KeyValuePair<double, int> paar in liste)
+            {
+                if (skip_first) {
+                    skip_first = false;
+                    continue;
+                }
+
+                double value = paar.Value;
+
+                if (value < 0)
+                    value = value * -1;
+
+                number += value;
+                total += paar.Key * paar.Value;
+            }
+
+            return total / number;
+        }
+
+        static int sumStats(Dictionary<double, int> liste)
+        {
+            int number = 0;
+
+            foreach (KeyValuePair<double, int> paar in liste)
+            {
+                number += paar.Value;
+            }
+
+            return number;
         }
     }
 }
