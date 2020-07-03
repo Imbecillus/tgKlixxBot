@@ -913,7 +913,7 @@ namespace tgKlixxBot
                                 System.IO.File.WriteAllText(highscorefile, json_export);
 
                                 // Userstats speichern (& komprimieren)
-                                var users = userstats.Keys;
+                                var users = scoreboard.Keys;
                                 foreach (var user in users)
                                 {
                                     double avg = calculateAverage(userstats[user]);
