@@ -913,12 +913,13 @@ namespace tgKlixxBot
                                 System.IO.File.WriteAllText(highscorefile, json_export);
 
                                 // Userstats speichern (& komprimieren)
-                                foreach (KeyValuePair<string, Dictionary<double, int>> paar in userstats)
+                                var users = userstats.Keys;
+                                foreach (var user in users)
                                 {
-                                    double avg = calculateAverage(paar.Value);
-                                    int total = sumStats(paar.Value);
-                                    userstats[paar.Key] = new Dictionary<double, int>();
-                                    userstats[paar.Key][avg] = total;
+                                    double avg = calculateAverage(userstats[user]);
+                                    int total = sumStats(userstats[user]);
+                                    userstats[user] = new Dictionary<double, int>();
+                                    userstats[user][avg] = total;
                                 }
                                 json_export = JsonConvert.SerializeObject(userstats);
                                 System.IO.File.WriteAllText(userstatsfile, json_export);
