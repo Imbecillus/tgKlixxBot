@@ -772,13 +772,21 @@ namespace tgKlixxBot
                                 else
                                     user = update.message.from.username;
 
+                                if (!userstats.ContainsKey(user))
+                                    sendMessage(update.message.chat.id, "Krrrah, ich habe leider noch nicht genug Daten über dich gesammelt.", update.message.message_id, kuchisch);
+
                                 double avg_all = calculateAverage(userstats[user]);
                                 double avg_today = calculateAverage(userstats[user], true);
-                                sendMessage(update.message.chat.id, user + " liegt durchschnittlich " + avg_all.ToString() + " daneben. \n");
-                                if (avg_today < avg_all)
-                                    sendMessage(update.message.chat.id, "Heute ist " + user + " besser als sonst und liegt durchschnittlich " + avg_today.ToString() + " daneben.");
+                                if (Double.IsNaN(avg_all))
+                                    sendMessage(update.message.chat.id, "Krrrah, ich habe leider noch nicht genug Daten über dich gesammelt.", update.message.message_id, kuchisch);
                                 else
-                                    sendMessage(update.message.chat.id, "Heute hat " + user + " einen Quatschtag und liegt durchschnittlich " + avg_today.ToString() + " daneben.");
+                                {
+                                    sendMessage(update.message.chat.id, user + " liegt durchschnittlich " + avg_all.ToString() + " daneben. \n");
+                                    if (avg_today < avg_all)
+                                        sendMessage(update.message.chat.id, "Heute ist " + user + " besser als sonst und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                    else
+                                        sendMessage(update.message.chat.id, "Heute hat " + user + " einen Quatschtag und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                }
                             }
 
                             if (update.message.text.ToLower().StartsWith("/kronen"))
