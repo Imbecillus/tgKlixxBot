@@ -25,6 +25,10 @@ namespace tgKlixxBot
         const string MOBIZEN = "CAADAgADpQAD0OMSJWb1SN7DP5K2FgQ";
         const string GUNAKLIBO = "CAADAgADzgAD0OMSJUKuUKIAAV99qRYE";
         const string UNDERCOVER = "CAACAgIAAxkBAAIEIV5Fiuu_PfzSbsZLQqv17R4y86kBAAJFAANZELYID6d_L2SFIJQYBA";
+        const string TITZEPINNWAND = "CAACAgIAAxkBAAIFIl8Zb8Kt-fx6Vjzb6IJ_WG0Hajp2AAKVAAPQ4xIlILEAAddgS1fYGgQ";
+        const string FLORENTINSCHREIT = "CAACAgIAAxkBAAIFJF8ZcGug-OjzpBnqfhEVZKjRvOZeAAI2AANZELYI70nJk2oeoNEaBA";
+        const string LARSSCHREIT = "CAACAgIAAxkBAAIFI18ZcGmXNkdmT8NSk6s37j1Axp3fAAItAAPQ4xIlQ6nX7RYOTi8aBA";
+
 
         static string wochentag = "";
 
@@ -210,6 +214,14 @@ namespace tgKlixxBot
 
                         if (update.message.text.StartsWith("/gunaklibo"))
                         {
+                            Random zufall = new Random();
+                            int zufallszahl = zufall.Next(1, 5);
+
+                            if (zufallszahl == 1)
+                                sendSticker(update.message.chat.id, FLORENTINSCHREIT);
+                            else if (zufallszahl == 2)
+                                sendSticker(update.message.chat.id, LARSSCHREIT);
+
                             if (ziffern)
                                 sendMessage(update.message.chat.id, TSCHÜSS_ZIFF);
                             else
@@ -768,24 +780,35 @@ namespace tgKlixxBot
 
                                 string user;
                                 if (update.message.text.Contains(" "))
-                                    user = update.message.text.Substring(update.message.text.IndexOf(" "));
+                                    user = update.message.text.Substring(update.message.text.IndexOf(" ") + 1);
                                 else
                                     user = update.message.from.username;
 
                                 if (!userstats.ContainsKey(user))
+                                {
                                     sendMessage(update.message.chat.id, "Krrrah, ich habe leider noch nicht genug Daten über dich gesammelt.", update.message.message_id, kuchisch);
+                                    sendSticker(update.message.chat.id, TITZEPINNWAND, update.message.message_id);
 
-                                double avg_all = calculateAverage(userstats[user]);
-                                double avg_today = calculateAverage(userstats[user], true);
-                                if (Double.IsNaN(avg_all))
-                                    sendMessage(update.message.chat.id, "Krrrah, ich habe leider noch nicht genug Daten über dich gesammelt.", update.message.message_id, kuchisch);
+                                }
                                 else
                                 {
-                                    sendMessage(update.message.chat.id, user + " liegt durchschnittlich " + avg_all.ToString() + " daneben. \n");
-                                    if (avg_today < avg_all)
-                                        sendMessage(update.message.chat.id, "Heute ist " + user + " besser als sonst und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                    double avg_all = calculateAverage(userstats[user]);
+                                    avg_all = Math.Round(avg_all, 2);
+                                    double avg_today = calculateAverage(userstats[user], true);
+                                    avg_today = Math.Round(avg_today, 2);
+                                    if (Double.IsNaN(avg_all))
+                                    {
+                                        sendMessage(update.message.chat.id, "Krrrah, ich habe leider noch nicht genug Daten über dich gesammelt.", update.message.message_id, kuchisch);
+                                        sendSticker(update.message.chat.id, TITZEPINNWAND, update.message.message_id);
+                                    }
                                     else
-                                        sendMessage(update.message.chat.id, "Heute hat " + user + " einen Quatschtag und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                    {
+                                        sendMessage(update.message.chat.id, user + " liegt durchschnittlich " + avg_all.ToString() + " daneben. \n");
+                                        if (avg_today < avg_all)
+                                            sendMessage(update.message.chat.id, "Heute ist " + user + " besser als sonst und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                        else
+                                            sendMessage(update.message.chat.id, "Heute hat " + user + " einen Quatschtag und liegt durchschnittlich " + avg_today.ToString() + " daneben.", update.message.message_id, kuchisch);
+                                    }
                                 }
                             }
 
@@ -797,7 +820,7 @@ namespace tgKlixxBot
                                 foreach (string spieler in kronenliste.Keys) {
                                     string zeile = spieler + ":";
                                     for (int i = 1; i <= kronenliste[spieler]; i++)
-                                        zeile = zeile + "👑";
+                                        zeile += "👑";
                                     crowns = crowns + "\n" + zeile;
                                 }
                                 sendMessage(update.message.chat.id, crowns);
@@ -982,6 +1005,7 @@ namespace tgKlixxBot
                                 if (larskoenig_berechnen)
                                 {
                                     double daneben = wahrheit - lars;
+                                    if (daneben < 0) daneben *= -1;
                                     if (userstats["Lars Paulsen"].ContainsKey(daneben))
                                         userstats["Lars Paulsen"][daneben] += 1;
                                     else
@@ -990,6 +1014,7 @@ namespace tgKlixxBot
                                 if (florentinkoenig_berechnen)
                                 {
                                     double daneben = wahrheit - florentin;
+                                    if (daneben < 0) daneben *= -1;
                                     if (userstats["Florentin Will"].ContainsKey(daneben))
                                         userstats["Florentin Will"][daneben] += 1;
                                     else
